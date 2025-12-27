@@ -9,10 +9,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:3001",
-      "https://your-frontend-domain.vercel.app",
-    ],
+    origin: ["http://localhost:3001", "https://mauve-five.vercel.app"],
     credentials: true,
   })
 );
@@ -626,7 +623,6 @@ app.get("/api/admin/orders", async (req, res) => {
   }
 });
 
-// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Mauve Backend running on port ${PORT}`);
