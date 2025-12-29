@@ -305,18 +305,11 @@ async function sendOrderConfirmationEmail(orderDetails) {
   };
 
   try {
-  console.log("Attempting to send email to:", customer_email);
-  console.log("From:", process.env.EMAIL_USER);
-  const info = await transporter.sendMail(mailOptions);
-  console.log(`Email sent successfully to ${customer_email}`);
-  console.log("Message ID:", info.messageId);
-} catch (error) {
-  console.error("Email send error:", error);
-  console.error("Error details:", {
-    message: error.message,
-    code: error.code,
-    command: error.command
-  });
+    await transporter.sendMail(mailOptions);
+    console.log(`Email sent to ${customer_email}`);
+  } catch (error) {
+    console.error("Email send error:", error);
+  }
 }
 
 app.post("/api/orders", async (req, res) => {
