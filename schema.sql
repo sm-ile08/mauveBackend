@@ -1,4 +1,3 @@
--- Products Table
 CREATE TABLE products (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
@@ -10,7 +9,6 @@ CREATE TABLE products (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Orders Table
 CREATE TABLE orders (
   id SERIAL PRIMARY KEY,
   order_code VARCHAR(50) UNIQUE NOT NULL,
@@ -27,7 +25,6 @@ CREATE TABLE orders (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Order Items Table
 CREATE TABLE order_items (
   id SERIAL PRIMARY KEY,
   order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
@@ -39,7 +36,6 @@ CREATE TABLE order_items (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Payments Table
 CREATE TABLE payments (
   id SERIAL PRIMARY KEY,
   order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
@@ -52,7 +48,6 @@ CREATE TABLE payments (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Indexes for better performance
 CREATE INDEX idx_orders_order_code ON orders(order_code);
 CREATE INDEX idx_orders_email ON orders(customer_email);
 CREATE INDEX idx_orders_status ON orders(status);

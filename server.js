@@ -1,6 +1,6 @@
 const express = require("express");
 const { Pool } = require("pg");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend"); // CHANGED: Import Resend instead of nodemailer
 const crypto = require("crypto");
 const cors = require("cors");
 require("dotenv").config();
@@ -34,15 +34,8 @@ const pool = new Pool({
   },
 });
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// CHANGED: Initialize Resend instead of nodemailer
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 function generateOrderCode() {
   const timestamp = Date.now().toString(36).toUpperCase();
@@ -160,6 +153,7 @@ function calculateDeliveryFee(location) {
   return 8000;
 }
 
+// CHANGED: Updated email function to use Resend
 async function sendOrderConfirmationEmail(orderDetails) {
   const {
     customer_email,
@@ -193,122 +187,133 @@ async function sendOrderConfirmationEmail(orderDetails) {
     )
     .join("");
 
-  const mailOptions = {
-    from: `"Mauve Beauty" <${process.env.EMAIL_USER}>`,
-    to: customer_email,
-    subject: `Order Confirmation - ${order_code}`,
-    html: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background-color: #8B7BA8; color: white; padding: 20px; text-align: center; }
-          .content { padding: 20px; background-color: #f9f9f9; }
-          .order-info { background-color: white; padding: 15px; margin: 15px 0; border-radius: 5px; }
-          table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-          th { background-color: #8B7BA8; color: white; padding: 10px; text-align: left; }
-          .total-row { font-weight: bold; background-color: #f0f0f0; }
-          .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>Mauve Beauty</h1>
-            <p>Thank you for your order!</p>
-          </div>
-          
-          <div class="content">
-            <h2>Hello ${customer_name},</h2>
-            <p>Your order has been received and is ${
-              status === "paid" ? "confirmed" : "awaiting payment"
-            }.</p>
-            
-            <div class="order-info">
-              <h3>Order Details</h3>
-              <p><strong>Order Code:</strong> ${order_code}</p>
-              <p><strong>Status:</strong> ${status
-                .replace("_", " ")
-                .toUpperCase()}</p>
-              <p><strong>Delivery Address:</strong> ${delivery_address}</p>
-            </div>
-            
-            <h3>Order Items</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Qty</th>
-                  <th>Price</th>
-                  <th>Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${itemsList}
-                <tr>
-                  <td colspan="3" style="padding: 8px; text-align: right;"><strong>Products Total:</strong></td>
-                  <td style="padding: 8px;"><strong>₦${parseFloat(
-                    products_total
-                  ).toLocaleString()}</strong></td>
-                </tr>
-                <tr>
-                  <td colspan="3" style="padding: 8px; text-align: right;"><strong>Delivery Fee:</strong></td>
-                  <td style="padding: 8px;"><strong>₦${parseFloat(
-                    delivery_fee
-                  ).toLocaleString()}</strong></td>
-                </tr>
-                <tr class="total-row">
-                  <td colspan="3" style="padding: 12px; text-align: right; font-size: 18px;">TOTAL AMOUNT:</td>
-                  <td style="padding: 12px; font-size: 18px;">₦${parseFloat(
-                    total_amount
-                  ).toLocaleString()}</td>
-                </tr>
-              </tbody>
-            </table>
-            
-            ${
-              status === "pending_payment"
-                ? `
-            <div class="order-info" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
-              <h3>Payment Instructions</h3>
-              <p>Please transfer <strong>₦${parseFloat(
-                total_amount
-              ).toLocaleString()}</strong> to:</p>
-              <p><strong>Bank:</strong> Access Bank<br>
-              <strong>Account Number:</strong> 1234567890<br>
-              <strong>Account Name:</strong> Mauve Beauty</p>
-              <p><strong>Reference:</strong> ${order_code}</p>
-              <p style="color: #856404;">After payment, your order will be processed within 24 hours.</p>
-            </div>
-            `
-                : `
-            <div class="order-info" style="background-color: #d4edda; border-left: 4px solid #28a745;">
-              <h3>✓ Payment Confirmed</h3>
-              <p>Your payment has been received and confirmed. We'll process your order shortly!</p>
-            </div>
-            `
-            }
-            
-            <p>You can track your order anytime using your order code: <strong>${order_code}</strong></p>
-          </div>
-          
-          <div class="footer">
-            <p>Need help? Contact us at support@mauvebeauty.com</p>
-            <p>&copy; 2024 Mauve Beauty. All rights reserved.</p>
-          </div>
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #73648C; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { padding: 20px; background-color: #f9f9f9; }
+        .order-info { background-color: white; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th { background-color: #73648C; color: white; padding: 10px; text-align: left; }
+        .total-row { font-weight: bold; background-color: #f0f0f0; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Mauve Beauty</h1>
+          <p>Thank you for your order!</p>
         </div>
-      </body>
-      </html>
-    `,
-  };
+        
+        <div class="content">
+          <h2>Hello ${customer_name},</h2>
+          <p>Your order has been received and is ${
+            status === "paid" ? "confirmed" : "awaiting payment"
+          }.</p>
+          
+          <div class="order-info">
+            <h3>Order Details</h3>
+            <p><strong>Order Code:</strong> ${order_code}</p>
+            <p><strong>Status:</strong> ${status
+              .replace("_", " ")
+              .toUpperCase()}</p>
+            <p><strong>Delivery Address:</strong> ${delivery_address}</p>
+          </div>
+          
+          <h3>Order Items</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsList}
+              <tr>
+                <td colspan="3" style="padding: 8px; text-align: right;"><strong>Products Total:</strong></td>
+                <td style="padding: 8px;"><strong>₦${parseFloat(
+                  products_total
+                ).toLocaleString()}</strong></td>
+              </tr>
+              <tr>
+                <td colspan="3" style="padding: 8px; text-align: right;"><strong>Delivery Fee:</strong></td>
+                <td style="padding: 8px;"><strong>₦${parseFloat(
+                  delivery_fee
+                ).toLocaleString()}</strong></td>
+              </tr>
+              <tr class="total-row">
+                <td colspan="3" style="padding: 12px; text-align: right; font-size: 18px;">TOTAL AMOUNT:</td>
+                <td style="padding: 12px; font-size: 18px;">₦${parseFloat(
+                  total_amount
+                ).toLocaleString()}</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          ${
+            status === "pending_payment"
+              ? `
+          <div class="order-info" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+            <h3>⏳ Payment Pending</h3>
+            <p>Please transfer <strong>₦${parseFloat(
+              total_amount
+            ).toLocaleString()}</strong> to:</p>
+            <p><strong>Bank:</strong> Access Bank<br>
+            <strong>Account Number:</strong> 1234567890<br>
+            <strong>Account Name:</strong> Mauve Beauty</p>
+            <p><strong>Reference:</strong> ${order_code}</p>
+            <p style="color: #856404;">After payment, your order will be processed within 24 hours.</p>
+          </div>
+          `
+              : `
+          <div class="order-info" style="background-color: #d4edda; border-left: 4px solid #28a745;">
+            <h3>✅ Payment Confirmed</h3>
+            <p>Your payment has been received and confirmed. We'll process your order shortly!</p>
+          </div>
+          `
+          }
+          
+          <p>You can track your order anytime using your order code: <strong>${order_code}</strong></p>
+        </div>
+        
+        <div class="footer">
+          <p>Need help? Contact us at support@mauvebeauty.com</p>
+          <p>&copy; 2024 Mauve Beauty. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log(`Email sent to ${customer_email}`);
+    console.log("Attempting to send email to:", customer_email);
+
+    // CHANGED: Use Resend API instead of nodemailer
+    const data = await resend.emails.send({
+      from: "Mauve Beauty <onboarding@resend.dev>", // Change after domain verification
+      to: [customer_email],
+      subject: `${
+        status === "paid" ? "✅ Payment Confirmed" : "⏳ Payment Pending"
+      } - Order ${order_code}`,
+      html: htmlContent,
+    });
+
+    console.log(`Email sent successfully to ${customer_email}`);
+    console.log("Resend response:", data);
   } catch (error) {
     console.error("Email send error:", error);
+    console.error("Error details:", {
+      message: error.message,
+      name: error.name,
+    });
   }
 }
 
