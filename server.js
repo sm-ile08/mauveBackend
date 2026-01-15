@@ -1,6 +1,6 @@
 const express = require("express");
 const { Pool } = require("pg");
-const { Resend } = require("resend"); // CHANGED: Import Resend instead of nodemailer
+const { Resend } = require("resend");
 const crypto = require("crypto");
 const cors = require("cors");
 require("dotenv").config();
@@ -34,7 +34,6 @@ const pool = new Pool({
   },
 });
 
-// CHANGED: Initialize Resend instead of nodemailer
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 function generateOrderCode() {
@@ -153,7 +152,6 @@ function calculateDeliveryFee(location) {
   return 8000;
 }
 
-// CHANGED: Updated email function to use Resend
 async function sendOrderConfirmationEmail(orderDetails) {
   const {
     customer_email,
@@ -262,7 +260,7 @@ async function sendOrderConfirmationEmail(orderDetails) {
             status === "pending_payment"
               ? `
           <div class="order-info" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
-            <h3>⏳ Payment Pending</h3>
+            <h3> Payment Pending</h3>
             <p>Please transfer <strong>₦${parseFloat(
               total_amount
             ).toLocaleString()}</strong> to:</p>
@@ -275,7 +273,7 @@ async function sendOrderConfirmationEmail(orderDetails) {
           `
               : `
           <div class="order-info" style="background-color: #d4edda; border-left: 4px solid #28a745;">
-            <h3>✅ Payment Confirmed</h3>
+            <h3> Payment Confirmed</h3>
             <p>Your payment has been received and confirmed. We'll process your order shortly!</p>
           </div>
           `
@@ -296,12 +294,11 @@ async function sendOrderConfirmationEmail(orderDetails) {
   try {
     console.log("Attempting to send email to:", customer_email);
 
-    // CHANGED: Use Resend API instead of nodemailer
     const data = await resend.emails.send({
-      from: "Mauve Beauty <onboarding@resend.dev>", // Change after domain verification
+      from: "Mauve Beauty <onboarding@resend.dev>",
       to: [customer_email],
       subject: `${
-        status === "paid" ? "✅ Payment Confirmed" : "⏳ Payment Pending"
+        status === "paid" ? "Payment Confirmed" : "Payment Pending"
       } - Order ${order_code}`,
       html: htmlContent,
     });

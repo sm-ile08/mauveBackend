@@ -16,16 +16,16 @@ const products = [
   {
     id: 1,
     name: "Glass Shine",
-    price: 4000,
-    stock_quantity: 50,
+    price: 4499,
+    stock_quantity: 500,
     description: "Soft clear with subtle shimmer for an effortless glow",
     image_url: "https://mauve-five.vercel.app/mauve-lip-gloss-tube-luxury.jpg",
   },
   {
     id: 2,
     name: "Soft Crush",
-    price: 4000,
-    stock_quantity: 50,
+    price: 4499,
+    stock_quantity: 500,
     description: "pink with velvety finish for timeless elegance",
     image_url:
       "https://mauve-five.vercel.app/nude-lip-gloss-luxury-product.jpg",
@@ -33,16 +33,16 @@ const products = [
   {
     id: 3,
     name: "Cocoa Charm",
-    price: 4000,
-    stock_quantity: 50,
+    price: 4499,
+    stock_quantity: 500,
     description: "chocolate gloss with high-shine finish",
     image_url: "https://mauve-five.vercel.app/clear-glass-lip-gloss-luxury.jpg",
   },
   {
     id: 4,
     name: "Mauve Balm",
-    price: 3000,
-    stock_quantity: 50,
+    price: 2999,
+    stock_quantity: 500,
     description:
       "A rich, glossy balm that keeps your lips soft, smooth, and glow-ready all day.",
     image_url: "https://mauve-five.vercel.app/clear-glass-lip-gloss-luxury.jpg",
@@ -50,8 +50,8 @@ const products = [
   {
     id: 5,
     name: "Mauve Scrub",
-    price: 3000,
-    stock_quantity: 50,
+    price: 2999,
+    stock_quantity: 500,
     description:
       "This all-natural scrub removes dead skin while locking in moisture",
     image_url: "https://mauve-five.vercel.app/clear-glass-lip-gloss-luxury.jpg",
