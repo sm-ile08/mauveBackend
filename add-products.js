@@ -16,44 +16,34 @@ const products = [
   {
     id: 1,
     name: "Glass Shine",
-    price: 4499,
+    price: 4500,
     stock_quantity: 500,
     description: "Soft clear with subtle shimmer for an effortless glow",
-    image_url: "https://mauve-five.vercel.app/mauve-lip-gloss-tube-luxury.jpg",
+    image_url: "https://mauve-five.vercel.app//mauve6.jpeg",
   },
   {
     id: 2,
     name: "Soft Crush",
-    price: 4499,
+    price: 4500,
     stock_quantity: 500,
     description: "pink with velvety finish for timeless elegance",
-    image_url:
-      "https://mauve-five.vercel.app/nude-lip-gloss-luxury-product.jpg",
+    image_url: "https://mauve-five.vercel.app//mauve7.jpeg",
   },
   {
     id: 3,
-    name: "Cocoa Charm",
-    price: 4499,
+    name: "Toffee Glow",
+    price: 4500,
     stock_quantity: 500,
     description: "chocolate gloss with high-shine finish",
-    image_url: "https://mauve-five.vercel.app/clear-glass-lip-gloss-luxury.jpg",
+    image_url: "https://mauve-five.vercel.app//mauve6.jpeg",
   },
   {
     id: 4,
     name: "Mauve Balm",
-    price: 2999,
+    price: 3000,
     stock_quantity: 500,
     description:
       "A rich, glossy balm that keeps your lips soft, smooth, and glow-ready all day.",
-    image_url: "https://mauve-five.vercel.app/clear-glass-lip-gloss-luxury.jpg",
-  },
-  {
-    id: 5,
-    name: "Mauve Scrub",
-    price: 2999,
-    stock_quantity: 500,
-    description:
-      "This all-natural scrub removes dead skin while locking in moisture",
     image_url: "https://mauve-five.vercel.app/clear-glass-lip-gloss-luxury.jpg",
   },
 ];
@@ -80,15 +70,15 @@ async function addProducts() {
           product.stock_quantity,
           product.description,
           product.image_url,
-        ]
+        ],
       );
       console.log(
-        ` Added/Updated: ${result.rows[0].name} (ID: ${result.rows[0].id})`
+        ` Added/Updated: ${result.rows[0].name} (ID: ${result.rows[0].id})`,
       );
     }
 
     await pool.query(
-      `SELECT setval('products_id_seq', (SELECT MAX(id) FROM products))`
+      `SELECT setval('products_id_seq', (SELECT MAX(id) FROM products))`,
     );
 
     console.log("\n All products added successfully!");
